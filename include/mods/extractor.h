@@ -27,6 +27,10 @@ typedef struct FitFile {
  */
 void printHeaderPrim30(uint8_t rawHeader[BYTES_PER_BLOCK]);
 
+/**
+ * @brief Extract FitFile
+ * @param file ptr to file
+ */
 FitFile extract(FILE* file);
 
 /**
