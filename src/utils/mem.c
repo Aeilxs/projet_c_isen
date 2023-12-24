@@ -1,4 +1,5 @@
 #include "utils/mem.h"
+#include "mods/extractor.h"
 #include "mods/log.h"
 #include <stdlib.h>
 
@@ -9,4 +10,9 @@ void* imalloc(size_t s) {
         exit(EXIT_FAILURE);
     }
     return ptr;
+}
+
+void freeFf(FitFile* ff) {
+    free(ff->data);
+    free(ff);
 }

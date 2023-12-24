@@ -19,6 +19,7 @@ typedef struct FitHeader {
 typedef struct FitFile {
     FitHeader header;
     uint16_t* data;
+    int bytesTot;
 } FitFile;
 
 /**
@@ -28,10 +29,10 @@ typedef struct FitFile {
 void printHeaderPrim30(uint8_t rawHeader[BYTES_PER_BLOCK]);
 
 /**
- * @brief Extract FitFile
+ * @brief Extract FitFile - need to use freeFf() after to free ff->data & ffPtr.
  * @param file ptr to file
  */
-FitFile extract(FILE* file);
+FitFile* extract(FILE* file);
 
 /**
  * @brief Process the HDU (Header Data Unit) and stock in FitHeader required

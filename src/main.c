@@ -2,17 +2,21 @@
 #include "mods/extractor.h"
 #include "mods/log.h"
 #include "utils/fs.h"
+#include "utils/mem.h"
 #include <stdint.h>
 #include <stdio.h>
 
 int main() {
-    FILE* rdark1 = open("assets/fits/darks/darks_00001.fit", "rb");
-    uint8_t header[BYTES_PER_BLOCK];
-    fread(header, BYTES_PER_BLOCK, 1, rdark1);
+    FILE* rlight1 = open("assets/fits/lights/r_lights_00001.fit", "rb");
+    FitFile* ff = extract(rlight1);
+    dumpHeader(&ff->header, 0);
+    fclose(rlight1);
 
-    FitHeader h = getHeader(header);
-    dumpHeader(&h, 1);
+    for (int i = 0; i < ff->bytesTot; i++) {
+        printf("--- val : [%hd] ---", ff->data[i]);
+    }
 
-    fclose(rdark1);
+    freeFf(ff);
+
     return 0;
 }

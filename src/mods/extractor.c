@@ -1,7 +1,9 @@
 #include "mods/extractor.h"
 #include "mods/log.h"
+#include "utils/mem.h"
 #include "utils/strings.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,6 +12,21 @@ void to_matrix(uint8_t rawHeader[BYTES_PER_BLOCK], char buffer[FIT_HEADER_LINE_T
 void insertKeys(FitHeader *header, char key[8], char val[73]);
 bool isValidKey(char key[8]);
 // clang-format on
+
+FitFile *extract(FILE *file) {
+    FitFile *ff = (FitFile *)imalloc(sizeof(FitFile));
+    uint8_t hBuffer[BYTES_PER_BLOCK];
+    fread(hBuffer, BYTES_PER_BLOCK, 1, file);
+    ff->header = getHeader(hBuffer);
+
+    fseek(file, 0, SEEK_END);
+    ff->bytesTot = ftell(file) - BYTES_PER_BLOCK;
+    fseek(file, BYTES_PER_BLOCK, SEEK_SET);
+
+    ff->data = (uint16_t *)imalloc(ff->bytesTot);
+    fread(ff->data, ff->bytesTot, 1, file);
+    return ff;
+}
 
 FitHeader getHeader(uint8_t rawHeader[BYTES_PER_BLOCK]) {
     FitHeader header;
@@ -42,20 +59,16 @@ void insertKeys(FitHeader *header, char key[8], char val[73]) {
     if (!strcmp(key, "NAXIS1")) {
         header->naxis1 = atoi(val);
         return;
-    }
-    if (!strcmp(key, "NAXIS2")) {
+    } else if (!strcmp(key, "NAXIS2")) {
         header->naxis2 = atoi(val);
         return;
-    }
-    if (!strcmp(key, "BSCALE")) {
+    } else if (!strcmp(key, "BSCALE")) {
         header->bscale = atoi(val);
         return;
-    }
-    if (!strcmp(key, "BZERO")) {
+    } else if (!strcmp(key, "BZERO")) {
         header->bzero = atoi(val);
         return;
-    }
-    if (!strcmp(key, "BITPIX")) {
+    } else if (!strcmp(key, "BITPIX")) {
         header->bitpix = atoi(val);
         return;
     }
@@ -93,7 +106,7 @@ void printHeaderPrim30(uint8_t header[BYTES_PER_BLOCK]) {
 }
 
 void dumpHeader(FitHeader *header, bool printRaw) {
-    log_debug("\nHeader dump:\n");
+    log_debug("Header dump:\n\n");
     printf("naxis1: %d\n", header->naxis1);
     printf("naxis2: %d\n", header->naxis2);
     printf("bscale: %d\n", header->bscale);
@@ -102,6 +115,7 @@ void dumpHeader(FitHeader *header, bool printRaw) {
 
     // can't use %s bcs no null char
     if (printRaw) {
+        log_debug("Raw print: \n");
         for (int i = 0; i < BYTES_PER_BLOCK; i++) {
             printf("%c", header->raw[i]);
         }
