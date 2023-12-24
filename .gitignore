@@ -1,0 +1,6 @@
+build
+.vscode
+.DS_Store
+assets
+.clang-format
+ideas.md
