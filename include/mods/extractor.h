@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/**
+ * @brief Header useful data for the project.
+ */
 typedef struct FitHeader {
     int bscale;
     int bzero;
@@ -16,10 +19,18 @@ typedef struct FitHeader {
     uint8_t raw[BYTES_PER_BLOCK];
 } FitHeader;
 
+/**
+ * @brief FitFile struct with header, data and some utilities.
+ * @param header FitHeader struct
+ * @param data pixels array
+ * @param bytesTot total bytes in HDU part
+ * @param arrlen arrlen for data
+ */
 typedef struct FitFile {
     FitHeader header;
-    uint16_t* data;
-    int bytesTot;
+    int16_t *data;
+    size_t bytesPdu;
+    int arrlen;
 } FitFile;
 
 /**
@@ -32,7 +43,7 @@ void printHeaderPrim30(uint8_t rawHeader[BYTES_PER_BLOCK]);
  * @brief Extract FitFile - need to use freeFf() after to free ff->data & ffPtr.
  * @param file ptr to file
  */
-FitFile* extract(FILE* file);
+FitFile *extract(FILE *file);
 
 /**
  * @brief Process the HDU (Header Data Unit) and stock in FitHeader required
@@ -46,6 +57,6 @@ FitHeader getHeader(uint8_t rawHeader[BYTES_PER_BLOCK]);
  * @param header header ptr
  * @param printRaw boolean, true= print false= no print
  */
-void dumpHeader(FitHeader* header, bool printRaw);
+void dumpHeader(FitHeader *header, bool printRaw);
 
 #endif

@@ -29,6 +29,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 run: $(BUILD_EXECUTABLE)
 	@echo "Lancement de l'éxécutable"
+	@echo
 	@./$(BUILD_EXECUTABLE)
 
 clean:

@@ -8,7 +8,7 @@
 #include <string.h>
 
 // clang-format off
-void to_matrix(uint8_t rawHeader[BYTES_PER_BLOCK], char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LENGTH + 2]);
+void to_matrix(uint8_t rawHeader[BYTES_PER_BLOCK], char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LEN + 2]);
 void insertKeys(FitHeader *header, char key[8], char val[73]);
 bool isValidKey(char key[8]);
 // clang-format on
@@ -20,11 +20,12 @@ FitFile *extract(FILE *file) {
     ff->header = getHeader(hBuffer);
 
     fseek(file, 0, SEEK_END);
-    ff->bytesTot = ftell(file) - BYTES_PER_BLOCK;
+    ff->bytesPdu = ftell(file) - BYTES_PER_BLOCK;
     fseek(file, BYTES_PER_BLOCK, SEEK_SET);
 
-    ff->data = (uint16_t *)imalloc(ff->bytesTot);
-    fread(ff->data, ff->bytesTot, 1, file);
+    ff->arrlen = ff->bytesPdu / 2;
+    ff->data = (int16_t *)imalloc(ff->bytesPdu);
+    fread(ff->data, ff->bytesPdu, 1, file);
     return ff;
 }
 
@@ -35,7 +36,7 @@ FitHeader getHeader(uint8_t rawHeader[BYTES_PER_BLOCK]) {
     header.bzero = 0;
     header.naxis1 = 0;
     header.naxis2 = 0;
-    char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LENGTH + 2];
+    char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LEN + 2];
     to_matrix(rawHeader, buffer);
     char key[9], val[73];
 
@@ -85,15 +86,15 @@ bool isValidKey(char key[8]) {
 
 void to_matrix(
     uint8_t rawHeader[BYTES_PER_BLOCK],
-    char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LENGTH + 2]
+    char buffer[FIT_HEADER_LINE_TOT][FIT_HEADER_LINE_LEN + 2]
 ) {
     int index = 0;
     for (int y = 0; y < FIT_HEADER_LINE_TOT; y++) {
-        for (int x = 0; x < FIT_HEADER_LINE_LENGTH; x++) {
+        for (int x = 0; x < FIT_HEADER_LINE_LEN; x++) {
             buffer[y][x] = rawHeader[index++];
         }
-        buffer[y][FIT_HEADER_LINE_LENGTH - 1] = '\n';
-        buffer[y][FIT_HEADER_LINE_LENGTH] = '\0';
+        buffer[y][FIT_HEADER_LINE_LEN - 1] = '\n';
+        buffer[y][FIT_HEADER_LINE_LEN] = '\0';
     }
 }
 
